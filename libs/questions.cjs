@@ -3,9 +3,9 @@
 const READYorNOT = [
     {
         type: 'list',
-        name: 'yesorno',
-        message: 'You cool with all that?\n Are you ready to begin?',
-        choices: ['Yes', 'No'],
+        name: 'View Info:',
+        message: 'What info do you want to see?',
+        choices: ['Departments', 'Employees', 'Roles', 'Quit'],
     },
 ];
 
