@@ -29,4 +29,5 @@ const EmpMenu = [
 
 module.exports = { 
     MainMenu, 
+    DeptMenu
 };
