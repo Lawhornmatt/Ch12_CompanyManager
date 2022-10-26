@@ -1,5 +1,3 @@
-// This could be acheived with a 'when' but I like this readability better
-// Also could use type: confirm but I think list still has better UX
 const MainMenu = [
     {
         type: 'list',
@@ -23,11 +21,22 @@ const EmpMenu = [
         type: 'list',
         name: 'View Info:',
         message: 'What would you like to do with Employee Data?',
+        choices: ['View All', 'Hire New', 'Edit', 'Fire', 'Return to Main Menu'],
+    },
+];
+
+const RoleMenu = [
+    {
+        type: 'list',
+        name: 'View Info:',
+        message: 'What would you like to do with Role Data?',
         choices: ['View All', 'Add New', 'Edit', 'Delete', 'Return to Main Menu'],
     },
 ];
 
 module.exports = { 
     MainMenu, 
-    DeptMenu
+    DeptMenu,
+    EmpMenu,
+    RoleMenu
 };
