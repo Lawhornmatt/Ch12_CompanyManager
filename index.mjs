@@ -275,8 +275,6 @@ function gotoEmpMenu() {
         return updatedObj2;
       }
     }) 
-
-
     let arrEmp = empData.map((obj) => (obj['First Name']+' '+obj['Last Name']));
     arrEmp.unshift('~Return Previous Menu~');
 
@@ -295,8 +293,87 @@ function gotoEmpMenu() {
 
     // --- HIRE NEW
     if (theAnswer === 'Hire New') {
-      gotoEmpMenu();
-    };
+
+      arrEmp[0] = 'none';
+
+      // Hold onto Role Data
+      let searchArea = Role;
+      let searchAtt = [ 'title', 'salary' ];
+      let searchIncl = [{ model: Dept, as: 'Department', attributes: [ ['name','Dept'] ] }];
+      let roleData = await searchInfo(searchArea, searchAtt, searchIncl);
+      let arrRole = roleData.map((obj) => (obj.title));
+      // arrRole.unshift('none');
+
+      // let mangChoice;
+
+      // console.log('Choose manager of new employee');
+      // await pickToChange('manager',arrEmp)
+      // .then((answer) => {
+      //   mangChoice = arrEmp.indexOf(answer);
+      // });
+
+      // if (mangChoice == 0) { return gotoEmpMenu() }
+
+      let HireNew = [
+          {
+              type: 'input',
+              name: 'hireFirstName',
+              message: 'What is the first name of the new employee?',
+          },
+          {
+              type: 'input',
+              name: 'hireLastName',
+              message: 'What is the last name of the new employee?',
+          },
+          {
+              type: 'list',
+              name: 'empRoleID',
+              message: 'What is their role?',
+              choices: arrRole,
+          },
+          {
+              type: 'list',
+              name: 'empMangID',
+              message: 'Who is their manager?',
+              choices: arrEmp,
+          },
+      ];
+
+      inquirer.prompt(HireNew)
+      .then(async(answer) => {
+
+          let cleanAnswers = Object.values(answer);
+
+          let roleID = (arrRole.indexOf(cleanAnswers[2])) + 1;
+
+          let mangID;
+
+          if (cleanAnswers[3] == 'none') {
+            mangID = null;
+          } else {
+            mangID = (arrEmp.indexOf(cleanAnswers[3]));
+          };
+
+          // console.log(cleanAnswers); 
+          // console.log({roleID}); 
+          // console.log({mangID}); 
+        
+          try{
+            const newEmpData = await Emp.create(
+              {
+              first_name: cleanAnswers[0],
+              last_name: cleanAnswers[1],
+              role_id: roleID,
+              manager_id: mangID,
+              }
+            );
+            console.assert(newEmpData, 'HireNew Employee Error: newEmpData failed')
+          } catch (err) {
+            console.log(err);
+          }
+      })
+      .then((result) => { gotoEmpMenu() });
+  };
 
     // --- CHANGE EMPLOYEE NAME
     if (theAnswer === 'Change Name') { 
@@ -413,9 +490,55 @@ function gotoRoleMenu() {
     };
 
     // --- ADD NEW ROLE
-    if (theAnswer === 'Add New') { 
+    if (theAnswer === 'Make New') {
 
-      gotoRoleMenu();
+      // Hold onto Dept Data
+      let searchArea = Dept;
+      let searchAtt = [ ['name','Departments'] ];
+      let deptData = await searchInfo(searchArea, searchAtt);
+      let arrDept = deptData.map((obj) => obj.Departments);
+
+      let MakeNew = [
+          {
+              type: 'input',
+              name: 'roleTitle',
+              message: 'What is the name of the new role?',
+          },
+          {
+              type: 'input',
+              name: 'roleSalary',
+              message: 'What is the salary of the role?',
+          },
+          {
+              type: 'list',
+              name: 'roleDeptID',
+              message: 'What dept does this role belong to?',
+              choices: arrDept,
+          },
+      ];
+
+      inquirer.prompt(MakeNew)
+      .then(async(answer) => {
+
+        let cleanAnswers = Object.values(answer);
+        
+        let deptID = (arrDept.indexOf(cleanAnswers[2])) + 1;
+        // console.log({ deptID });
+
+        try{
+          const newRoleData = await Role.create(
+            {
+            title: cleanAnswers[0],
+            salary: cleanAnswers[1],
+            department_id: deptID,
+            }
+          );
+          console.assert(newRoleData, 'MakeNew Department Error: newRoleData failed')
+        } catch (err) {
+          console.log(err);
+        }
+      })
+      .then((result) => { gotoRoleMenu() });
     };
 
     // --- EDIT ROLE
