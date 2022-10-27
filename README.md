@@ -1,6 +1,6 @@
-# Employee Manager
+# 👨‍💼 Company Manager 💼
   [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-  [![Bugs](https://img.shields.io/github/issues/Lawhornmatt/Ch12_EmployeeManager/bug.svg)](https://github.com/Lawhornmatt/Ch12_EmployeeManager/issues)
+  [![Bugs](https://img.shields.io/github/issues/Lawhornmatt/Ch12_CompanyManager/bug.svg)](https://github.com/Lawhornmatt/Ch12_CompanyManager/issues)
 
 ## TABLE OF CONTENTS:
 
@@ -25,11 +25,11 @@
 
 ## DESCRIPTION:
 
-This is the ReadMe for Matthew Lawhorn's project titled: Employee Manager
+This is the ReadMe for Matthew Lawhorn's project titled: Company Manager
 
 This is Challenge 12 for the Fall 2022 UT Coding Bootcamp. This app is a command line program allowing a businesses' management to access HR data and alter it. 
 
-<img src='./cm_scrnsht.png' alt='A screenshot of Employee Manager'/>
+<img src='./cm_scrnsht.png' alt='A screenshot of Company Manager'/>
 
 <a name="installation"></a>
 
