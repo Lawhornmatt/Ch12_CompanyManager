@@ -15,6 +15,7 @@ const { Dept, Emp, Role } = require('./models');
 //   BLUEPRINTS
 // ====================
 
+// SEARCH INFO
 // Blueprint function that builds a query which returns all data for that table
 async function searchInfo(table, attributes, includes) {
   const searchData = await table.findAll({
@@ -25,6 +26,7 @@ async function searchInfo(table, attributes, includes) {
   return dataClean;
 };
 
+// MAKE NEW
 // Blueprint function that builds a Inquirer prompt making a new Role/Dept/Employee
 function makeNew(tableName) {
 
@@ -49,6 +51,59 @@ function makeNew(tableName) {
   // Return back a prompt with a proper formatted answer
   return inquirer.prompt(MakeNew).then((answer) => Object.values(answer)[0] );
 };
+
+// PICK ENTITY TO CHANGE
+// Blueprint function that builds a Inquirer prompt for renaming any entity
+function pickToChange(entity, choices) {
+  let PickEntity = [
+    {
+        type: 'list',
+        name: `chosenEntity`,
+        message: `Pick the ${entity} to change.`,
+        choices: choices,
+    },
+  ];
+  return inquirer.prompt(PickEntity).then((answer) => Object.values(answer)[0] );
+};
+
+// INPUT NEW NAME
+// Blueprint function that builds a Inquirer prompt for typing in the new entity name
+function typeUpdatedEntity(entity) {
+  if (entity == 'employee') {
+    let NewName = [
+      {
+          type: 'input',
+          name: `newFirstName`,
+          message: `Type in the updated ${entity} first name.`,
+      },
+      {
+          type: 'input',
+          name: `newLastName`,
+          message: `Type in the updated ${entity} last name.`,
+      },
+    ];
+    return inquirer.prompt(NewName).then((answer) => Object.values(answer) );
+  } else if (entity == 'employee role') {
+    let NewName = [
+      {
+          type: 'input',
+          name: `newEmpRole`,
+          message: `Type in the index of the ${entity} to update to.
+          Only a single number character will be accepted.`,
+      },
+    ]
+    return inquirer.prompt(NewName).then((answer) => Object.values(answer)[0] );
+  } else {
+    let NewName = [
+      {
+          type: 'input',
+          name: `newEntityName`,
+          message: `Type in the updated ${entity} name.`,
+      },
+    ]
+    return inquirer.prompt(NewName).then((answer) => Object.values(answer)[0] );
+  }
+}
 
 // ====================
 //    MAIN FUNCTIONS
@@ -105,9 +160,12 @@ function gotoDeptMenu() {
     let searchArea = Dept;
     let searchAtt = [ ['name','Departments'] ];
     let deptData = await searchInfo(searchArea, searchAtt);
+    let arrDept = deptData.map((obj) => obj.Departments);
+    arrDept.unshift('~Return Previous Menu~');
 
     // --- VIEW ALL
     if (theAnswer === 'View All') { 
+      console.log('CURRENT DEPARTMENTS: ')
       console.table(deptData);
       gotoDeptMenu();
     };
@@ -138,9 +196,9 @@ function gotoDeptMenu() {
       console.table(deptData);
 
       // Make an array of all dept titles for the PickDept prompt choices
-      let arrDept = deptData.map((obj) => obj.Departments);
+      // let arrDept = deptData.map((obj) => obj.Departments);
       // Provide a way for the user to back out of their choice
-      arrDept.unshift('~Return Previous Menu~');
+      // arrDept.unshift('~Return Previous Menu~');
 
       let PickDept = [
         {
@@ -225,9 +283,40 @@ function gotoEmpMenu() {
       { model: Emp, as: 'Manager', attributes: [ ['first_name', 'First Name'], ['last_name','Last Name'] ] }
     ];
     let empData = await searchInfo(searchArea, searchAtt, searchIncl);
+    // Format and tidy up that Employee data
+    let tidyEmpData = empData.map((obj) => {
+        
+      let theTitle = obj['Company Role'].title;
+      let updatedObj1 = Object.assign({}, obj, {['Company Role']:theTitle});
+
+      let updatedObj2 = {
+        Name: `${updatedObj1['First Name']} ${updatedObj1['Last Name']}`,
+        'Company Role': updatedObj1['Company Role'],
+        Manager: updatedObj1.Manager,
+      };
+
+      if (obj.Manager) {
+        let theManagerName = `${obj.Manager['First Name']} ${obj.Manager['Last Name']}`;
+        let updatedObj3 = Object.assign({}, updatedObj2, {Manager:theManagerName});
+        return updatedObj3;
+      } else {
+        return updatedObj2;
+      }
+    }) 
+
+
+    let arrEmp = empData.map((obj) => (obj['First Name']+' '+obj['Last Name']));
+    arrEmp.unshift('~Return Previous Menu~');
 
     // --- VIEW ALL
-    if (theAnswer === 'View All') { 
+    if (theAnswer === 'View All') {
+      console.log('CURRENT EMPLOYEES: ')
+      console.table(tidyEmpData);
+      gotoEmpMenu();
+    };
+
+    // --- VIEW ALL (RAW)
+    if (theAnswer === 'Raw Emp Db Data') {
       console.table(empData);
       gotoEmpMenu();
     };
@@ -237,10 +326,81 @@ function gotoEmpMenu() {
       gotoEmpMenu();
     };
 
-    // --- EDIT
-    if (theAnswer === 'Edit') { 
+    // --- CHANGE NAME
+    if (theAnswer === 'Change Name') { 
+      let empChoice;
 
-      gotoEmpMenu();
+      await pickToChange('employee',arrEmp)
+      .then((answer) => {
+        empChoice = arrEmp.indexOf(answer);
+      });
+
+      if (empChoice == 0) { return gotoEmpMenu() }
+      
+      await typeUpdatedEntity('employee')
+      .then(async(answerArr) => {
+        try{
+          const updateEmpName = await Emp.update(
+            {
+              first_name: answerArr[0],
+              last_name: answerArr[1],
+            },
+            {
+              where:  { id: empChoice}
+            }
+          );
+          console.assert(updateEmpName, 'Update Emp Name Error: updateEmpName failed')
+        } catch (err) {
+          console.log(err);
+        }
+      })
+      .then((result) => { gotoEmpMenu() });
+    };
+
+    // --- EDIT EMPLOYEE ROLE
+    if (theAnswer === 'Edit Role') { 
+      let empChoice;
+
+      await pickToChange('employee',arrEmp)
+      .then((answer) => {
+        empChoice = arrEmp.indexOf(answer);
+      });
+
+      if (empChoice == 0) { return gotoEmpMenu() }
+
+      // Hold onto Role Data
+      let searchArea = Role;
+      let searchAtt = [ 'title', 'salary' ];
+      let searchIncl = [{ model: Dept, as: 'Department', attributes: [ ['name','Dept'] ] }];
+      let roleData = await searchInfo(searchArea, searchAtt, searchIncl);
+      console.log('CURRENT ROLES: ')
+      console.table(roleData);
+
+      await typeUpdatedEntity('employee role')
+      .then(async(rollAnswer) => {
+        if (!/^[0-9]$/.test(rollAnswer)) {
+          return console.log("User Error: Only input updated role index as a single whole integer")
+        }
+        if (rollAnswer > roleData.length - 1) {
+          return console.log("User Error: That index is not found")
+        }
+        let bumpRoleID = (Number(rollAnswer) + 1);
+        // console.log(bumpRoleID);
+        try{
+          const updateEmpRole = await Emp.update(
+            {
+              role_id: bumpRoleID,
+            },
+            {
+              where:  { id: empChoice}
+            }
+          );
+          console.assert(updateEmpRole, 'Update Emp Role Error: updateEmpRole failed')
+        } catch (err) {
+          console.log(err);
+        }
+      })
+      .then((result) => { gotoEmpMenu() });
     };
 
     // --- FIRE
@@ -275,6 +435,7 @@ function gotoRoleMenu() {
 
     // --- VIEW ALL
     if (theAnswer === 'View All') { 
+      console.log('CURRENT ROLES: ')
       console.table(roleData);
       gotoRoleMenu();
     };

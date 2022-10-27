@@ -21,7 +21,7 @@ const EmpMenu = [
         type: 'list',
         name: 'View Info:',
         message: 'What would you like to do with Employee Data?',
-        choices: ['View All', 'Hire New', 'Edit', 'Fire', '~Return to Main Menu~'],
+        choices: ['View All', 'Raw Emp Db Data', 'Hire New', 'Change Name', 'Edit Role', 'Fire', '~Return to Main Menu~'],
     },
 ];
 
