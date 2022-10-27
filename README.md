@@ -4,22 +4,24 @@
 
 ## TABLE OF CONTENTS:
 
-* [Description](#DESCRIPTION)
+* [Description](#description)
 
-* [Installation guide](#INSTALLATION) 
+* [Installation guide](#installation) 
 
-* [Usage Info](#USAGEINFO) 
+* [Usage Info](#usage) 
 
-* [Contribution Guidelines](#CONTRIBUTIONGUIDELINES) 
+* [Contribution Guidelines](#contribution) 
 
-* [Testing Instructions](#TESTINSTRUCTIONS) 
+* [Testing Instructions](#testing) 
 
-* [Questions](#QUESTIONS)
+* [Questions](#questions)
 
-* [Credits](#CREDIT)
+* [Credits](#credit)
 
-* [License](#LICENSE)
+* [License](#license)
 
+
+<a name="description"></a>
 
 ## DESCRIPTION:
 
@@ -27,23 +29,33 @@ This is the ReadMe for Matthew Lawhorn's project titled: Employee Manager
 
 This is Challenge 12 for the Fall 2022 UT Coding Bootcamp. This app is a command line program allowing a businesses' management to access HR data and alter it. 
 
-<img src='INSERT PATH TO SCREENSHOT HERE' alt='A screenshot of Employee Manager'/>
+<img src='./cm_scrnsht.png' alt='A screenshot of Employee Manager'/>
+
+<a name="installation"></a>
 
 ## INSTALLATION:
 
 Install Node.js globally, cd to the file location of app, and run the app in Node
 
-## USAGE INFO:
+<a name="usage"></a>
+
+## USAGE:
 
 Follow the prompts given.
 
-## CONTRIBUTION GUIDELINES:
+<a name="contribution"></a>
+
+## CONTRIBUTION:
 
 Sorry, this project is privately maintained.
 
-## TEST INSTRUCTIONS:
+<a name="testing"></a>
+
+## TESTING:
 
 Thank you, but no testing is needed at this time.
+
+<a name="questions"></a>
 
 ## QUESTIONS:
 
@@ -53,11 +65,15 @@ you can find my GitHub here: https://github.com/Lawhornmatt
 
 or email me here: fake@notreal.com
 
+<a name="credit"></a>
+
 ## CREDIT:
 
 This project was made in 2022 by Matthew Lawhorn
 
 This is a solo-project.
+
+<a name="license"></a>
 
 ## LICENSE:
 

@@ -1,7 +1,6 @@
 // ====================
 //      IMPORTS
 // ====================
-import fs from 'fs';
 import inquirer from 'inquirer';
 import { MainMenu, DeptMenu, EmpMenu, RoleMenu } from './libs/menus.cjs';
 
@@ -108,6 +107,16 @@ function typeUpdatedEntity(entity) {
 // ====================
 //    MAIN FUNCTIONS
 // ====================
+
+// LOGO SPLASH
+console.log(`
+\x1b[36m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\x1b[0m
+\x1b[0;106m C O M P A N Y   M A N A G E R \x1b[0m
+
+
+You are using \x1b[36mCompany Manager\x1b[0m,
+   where you can keep your enterprise afloat.
+\x1b[36m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\x1b[0m`);
 
 // -- START UP: MAIN MENU --
 // Main body function that takes you to the Main Menu of the app

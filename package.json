@@ -10,7 +10,6 @@
   "author": "Matthew T Lawhorn",
   "license": "MIT",
   "dependencies": {
-    "console.table": "^0.10.0",
     "dotenv": "^16.0.2",
     "inquirer": "^9.1.0",
     "mysql2": "^2.2.5",
