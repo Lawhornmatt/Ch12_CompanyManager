@@ -163,14 +163,14 @@ function gotoDeptMenu() {
     let arrDept = deptData.map((obj) => obj.Departments);
     arrDept.unshift('~Return Previous Menu~');
 
-    // --- VIEW ALL
+    // --- VIEW ALL DEPARTMENTS
     if (theAnswer === 'View All') { 
-      console.log('CURRENT DEPARTMENTS: ')
+      console.log('The Current Departments: ')
       console.table(deptData);
       gotoDeptMenu();
     };
 
-    // --- MAKE NEW
+    // --- MAKE NEW DEPARTMENT
     if (theAnswer === 'Make New') { 
       console.log('The Current Departments: ');
       console.table(deptData);
@@ -190,49 +190,21 @@ function gotoDeptMenu() {
         .then((result) => { gotoDeptMenu() });
     };
 
-    // --- EDIT
+    // --- EDIT DEPARTMENT
     if (theAnswer === 'Edit') { 
       console.log('The Current Departments: ');
       console.table(deptData);
 
-      // Make an array of all dept titles for the PickDept prompt choices
-      // let arrDept = deptData.map((obj) => obj.Departments);
-      // Provide a way for the user to back out of their choice
-      // arrDept.unshift('~Return Previous Menu~');
-
-      let PickDept = [
-        {
-            type: 'list',
-            name: `chosenDept`,
-            message: `Pick the department to rename.`,
-            choices: arrDept,
-        },
-      ];
-
       let deptChoice;
 
-      await inquirer.prompt(PickDept)
+      await pickToChange('department', arrDept)
       .then((answer) => {
-        deptChoice = arrDept.indexOf(Object.values(answer)[0]);
-        // Gives us the index of the user's chosen dept. 
-        // NOTE: MySQL indexes the table starting at 1, unlike arrays starting at 0
-        // CONT: So to get the chosen dept in the SQL table one must add 1
-        // CONT: Coincidentally, unshifting an option to go backwards does this for us
+        deptChoice = arrDept.indexOf(answer);
       });
 
       if (deptChoice == 0) { return gotoDeptMenu() }
-
-      let MakeEdit = [
-        {
-            type: 'input',
-            name: `newDeptName`,
-            message: `Type in a new department name.`,
-        },
-      ];
     
-      await inquirer.prompt(MakeEdit)
-      //  .then((answer) => console.log({ deptChoice }))
-      .then((answer) => Object.values(answer)[0] )
+      await typeUpdatedEntity('department')
       .then(async(cleanAnswer) => {
         try{
           const updateDept = await Dept.update(
@@ -251,7 +223,7 @@ function gotoDeptMenu() {
       .then((result) => { gotoDeptMenu() });
     };
 
-    // --- DELETE
+    // --- DELETE DEPARTMENT
     if (theAnswer === 'Delete') { 
 
       gotoDeptMenu();
@@ -308,9 +280,9 @@ function gotoEmpMenu() {
     let arrEmp = empData.map((obj) => (obj['First Name']+' '+obj['Last Name']));
     arrEmp.unshift('~Return Previous Menu~');
 
-    // --- VIEW ALL
+    // --- VIEW ALL EMPLOYEES
     if (theAnswer === 'View All') {
-      console.log('CURRENT EMPLOYEES: ')
+      console.log('The Current Employees: ')
       console.table(tidyEmpData);
       gotoEmpMenu();
     };
@@ -326,7 +298,7 @@ function gotoEmpMenu() {
       gotoEmpMenu();
     };
 
-    // --- CHANGE NAME
+    // --- CHANGE EMPLOYEE NAME
     if (theAnswer === 'Change Name') { 
       let empChoice;
 
@@ -373,7 +345,7 @@ function gotoEmpMenu() {
       let searchAtt = [ 'title', 'salary' ];
       let searchIncl = [{ model: Dept, as: 'Department', attributes: [ ['name','Dept'] ] }];
       let roleData = await searchInfo(searchArea, searchAtt, searchIncl);
-      console.log('CURRENT ROLES: ')
+      console.log('The Current Roles: ')
       console.table(roleData);
 
       await typeUpdatedEntity('employee role')
@@ -403,7 +375,7 @@ function gotoEmpMenu() {
       .then((result) => { gotoEmpMenu() });
     };
 
-    // --- FIRE
+    // --- FIRE EMPLOYEE
     if (theAnswer === 'Fire') { 
 
       gotoEmpMenu();
@@ -433,26 +405,26 @@ function gotoRoleMenu() {
     let searchIncl = [{ model: Dept, as: 'Department', attributes: [ ['name','Dept'] ] }];
     let roleData = await searchInfo(searchArea, searchAtt, searchIncl);
 
-    // --- VIEW ALL
+    // --- VIEW ALL ROLES
     if (theAnswer === 'View All') { 
-      console.log('CURRENT ROLES: ')
+      console.log('The Current Roles: ')
       console.table(roleData);
       gotoRoleMenu();
     };
 
-    // --- ADD NEW
+    // --- ADD NEW ROLE
     if (theAnswer === 'Add New') { 
 
       gotoRoleMenu();
     };
 
-    // --- EDIT
+    // --- EDIT ROLE
     if (theAnswer === 'Edit') { 
 
       gotoRoleMenu();
     };
 
-    // --- DELETE
+    // --- DELETE ROLE
     if (theAnswer === 'Delete') { 
 
       gotoRoleMenu();
