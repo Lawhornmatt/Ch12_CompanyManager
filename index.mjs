@@ -12,7 +12,7 @@ const require = createRequire(import.meta.url);
 const { Dept, Emp, Role } = require('./models');
 
 // ====================
-//   QUERY BLUEPRINTS
+//   BLUEPRINTS
 // ====================
 
 // Blueprint function that builds a query which returns all data for that table
@@ -22,16 +22,41 @@ async function searchInfo(table, attributes, includes) {
     include: includes
   });
   const dataClean = searchData.map((obj) => obj.get({ plain: true }));
-  return console.table(dataClean);
+  return dataClean;
+};
+
+// Blueprint function that builds a Inquirer prompt making a new Role/Dept/Employee
+function makeNew(tableName) {
+
+  let theMessage;
+
+  // Becuase of awkward English, we make a seperate sentence for Employees
+  if(tableName == 'employee'){
+    theMessage = `What is the name of the new ${tableName}?`;
+  } else {
+    theMessage = `What is the new ${tableName} called?`;
+  };
+
+  // Construct our Inquirer prompt
+  let MakeNew = [
+    {
+        type: 'input',
+        name: `new-${tableName}`,
+        message: theMessage,
+    },
+  ];
+
+  // Return back a prompt with a proper formatted answer
+  return inquirer.prompt(MakeNew).then((answer) => Object.values(answer)[0] );
 };
 
 // ====================
 //    MAIN FUNCTIONS
 // ====================
 
-// -- START UP --
+// -- START UP: MAIN MENU --
 // Main body function that takes you to the Main Menu of the app
-async function startup() {
+function startup() {
     inquirer.prompt(MainMenu)
     .then((answers) => {
 
@@ -74,28 +99,100 @@ function gotoDeptMenu() {
   .then(async(answers) => {
     let theAnswer = (Object.values(answers))[0];
 
-    if (theAnswer === 'Return to Main Menu') { startup() };
+    if (theAnswer === '~Return to Main Menu~') { startup() };
+
+    // Hold onto Dept Data
+    let searchArea = Dept;
+    let searchAtt = [ ['name','Departments'] ];
+    let deptData = await searchInfo(searchArea, searchAtt);
 
     // --- VIEW ALL
     if (theAnswer === 'View All') { 
-      let searchArea = Dept;
-      let searchAtt = [ ['name','Departments'] ];
-      await searchInfo(searchArea, searchAtt);
+      console.table(deptData);
       gotoDeptMenu();
     };
 
     // --- MAKE NEW
     if (theAnswer === 'Make New') { 
+      console.log('The Current Departments: ');
+      console.table(deptData);
 
-      gotoDeptMenu();
+      makeNew('department').then(async(answer) => {
+          try{
+            const newDeptData = await Dept.create(
+              {
+              name: answer,
+              }
+            );
+            console.assert(newDeptData, 'MakeNew Department Error: newDeptData failed')
+          } catch (err) {
+            console.log(err);
+          }
+        })
+        .then((result) => { gotoDeptMenu() });
     };
 
     // --- EDIT
     if (theAnswer === 'Edit') { 
+      console.log('The Current Departments: ');
+      console.table(deptData);
 
-      gotoDeptMenu();
-    };
+      // Make an array of all dept titles for the PickDept prompt choices
+      let arrDept = deptData.map((obj) => obj.Departments);
+      // Provide a way for the user to back out of their choice
+      arrDept.unshift('~Return Previous Menu~');
+
+      let PickDept = [
+        {
+            type: 'list',
+            name: `chosenDept`,
+            message: `Pick the department to rename.`,
+            choices: arrDept,
+        },
+      ];
+
+      let deptChoice;
+
+      await inquirer.prompt(PickDept)
+      .then((answer) => {
+        deptChoice = arrDept.indexOf(Object.values(answer)[0]);
+        // Gives us the index of the user's chosen dept. 
+        // NOTE: MySQL indexes the table starting at 1, unlike arrays starting at 0
+        // CONT: So to get the chosen dept in the SQL table one must add 1
+        // CONT: Coincidentally, unshifting an option to go backwards does this for us
+      });
+
+      if (deptChoice == 0) { return gotoDeptMenu() }
+
+      let MakeEdit = [
+        {
+            type: 'input',
+            name: `newDeptName`,
+            message: `Type in a new department name.`,
+        },
+      ];
     
+      await inquirer.prompt(MakeEdit)
+      //  .then((answer) => console.log({ deptChoice }))
+      .then((answer) => Object.values(answer)[0] )
+      .then(async(cleanAnswer) => {
+        try{
+          const updateDept = await Dept.update(
+            {
+              name: cleanAnswer,
+            },
+            {
+              where:  { id: deptChoice}
+            }
+          );
+          console.assert(updateDept, 'Edit Department Error: updateDept failed')
+        } catch (err) {
+          console.log(err);
+        }
+      })
+      .then((result) => { gotoDeptMenu() });
+    };
+
     // --- DELETE
     if (theAnswer === 'Delete') { 
 
@@ -118,17 +215,20 @@ function gotoEmpMenu() {
   .then(async(answers) => {
     let theAnswer = (Object.values(answers))[0];
   
-    if (theAnswer === 'Return to Main Menu') { startup() };
+    if (theAnswer === '~Return to Main Menu~') { startup() };
+
+    // Hold onto Employee Data
+    let searchArea = Emp;
+    let searchAtt = [ ['first_name','First Name'], ['last_name','Last Name'] ];
+    let searchIncl = [
+      { model: Role, as: 'Company Role', attributes: [ 'title' ] }, 
+      { model: Emp, as: 'Manager', attributes: [ ['first_name', 'First Name'], ['last_name','Last Name'] ] }
+    ];
+    let empData = await searchInfo(searchArea, searchAtt, searchIncl);
 
     // --- VIEW ALL
     if (theAnswer === 'View All') { 
-      let searchArea = Emp;
-      let searchAtt = [ ['first_name','First Name'], ['last_name','Last Name'] ];
-      let searchIncl = [
-        { model: Role, as: 'Company Role', attributes: [ 'title' ] }, 
-        { model: Emp, as: 'Manager', attributes: [ ['first_name', 'First Name'], ['last_name','Last Name'] ] }
-      ];
-      await searchInfo(searchArea, searchAtt, searchIncl);
+      console.table(empData);
       gotoEmpMenu();
     };
 
@@ -165,14 +265,17 @@ function gotoRoleMenu() {
   .then(async(answers) => {
     let theAnswer = (Object.values(answers))[0];
 
-    if (theAnswer === 'Return to Main Menu') { startup() };
+    if (theAnswer === '~Return to Main Menu~') { startup() };
+
+    // Hold onto Role Data
+    let searchArea = Role;
+    let searchAtt = [ 'title', 'salary' ];
+    let searchIncl = [{ model: Dept, as: 'Department', attributes: [ ['name','Dept'] ] }];
+    let roleData = await searchInfo(searchArea, searchAtt, searchIncl);
 
     // --- VIEW ALL
     if (theAnswer === 'View All') { 
-      let searchArea = Role;
-      let searchAtt = [ 'title', 'salary' ];
-      let searchIncl = [{ model: Dept, as: 'Department', attributes: [ ['name','Dept'] ] }];
-      await searchInfo(searchArea, searchAtt, searchIncl);
+      console.table(roleData);
       gotoRoleMenu();
     };
 

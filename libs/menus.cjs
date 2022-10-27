@@ -12,7 +12,7 @@ const DeptMenu = [
         type: 'list',
         name: 'View Info:',
         message: 'What would you like to do with Departments?',
-        choices: ['View All', 'Make New', 'Edit', 'Delete', 'Return to Main Menu'],
+        choices: ['View All', 'Make New', 'Edit', 'Delete', '~Return to Main Menu~'],
     },
 ];
 
@@ -21,7 +21,7 @@ const EmpMenu = [
         type: 'list',
         name: 'View Info:',
         message: 'What would you like to do with Employee Data?',
-        choices: ['View All', 'Hire New', 'Edit', 'Fire', 'Return to Main Menu'],
+        choices: ['View All', 'Hire New', 'Edit', 'Fire', '~Return to Main Menu~'],
     },
 ];
 
@@ -30,7 +30,7 @@ const RoleMenu = [
         type: 'list',
         name: 'View Info:',
         message: 'What would you like to do with Role Data?',
-        choices: ['View All', 'Add New', 'Edit', 'Delete', 'Return to Main Menu'],
+        choices: ['View All', 'Add New', 'Edit', 'Delete', '~Return to Main Menu~'],
     },
 ];
 
